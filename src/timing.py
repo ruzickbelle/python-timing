@@ -12,10 +12,7 @@ For repeated performance measurements (microbenchmarks), use the builtin `timeit
 import typing
 import time
 
-try:
-    TimerUnit = typing.Literal["seconds", "milliseconds", "microseconds", "nanoseconds"]
-except AttributeError:
-    TimerUnit = typing.NewType("TimerUnit", str)
+TimerUnit = typing.Literal["seconds", "milliseconds", "microseconds", "nanoseconds"]
 TimerResult = typing.Union[int, float]
 TimerCallback = typing.Callable[[TimerResult], None]
 
