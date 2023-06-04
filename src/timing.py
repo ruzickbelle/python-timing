@@ -12,8 +12,11 @@ For repeated performance measurements (microbenchmarks), use the builtin `timeit
 import typing
 import time
 
-TimerUnit = typing.Literal["seconds", "milliseconds", "microseconds", "nanoseconds"]
-TimerResult = int | float
+try:
+    TimerUnit = typing.Literal["seconds", "milliseconds", "microseconds", "nanoseconds"]
+except AttributeError:
+    TimerUnit = typing.NewType("TimerUnit", str)
+TimerResult = typing.Union[int, float]
 TimerCallback = typing.Callable[[TimerResult], None]
 
 prevtimer = None
@@ -32,12 +35,12 @@ class Timer:
     * Contexts:     with Timer() as timer: pass
     """
     __slots__ = ("starttime", "result", "unit", "callback")
-    starttime: None | int
-    result: None | int
+    starttime: typing.Optional[int]
+    result: typing.Optional[int]
     unit: TimerUnit
-    callback: None | TimerCallback
+    callback: typing.Optional[TimerCallback]
 
-    def __init__(self, unit: TimerUnit = "seconds", callback: None | TimerCallback = None) -> None:
+    def __init__(self, unit: TimerUnit = "seconds", callback: typing.Optional[TimerCallback] = None) -> None:
         self.starttime = None
         self.result = None
         self.unit = unit
@@ -56,7 +59,7 @@ class Timer:
         if clear:
             self.result = None
 
-    def current(self, unit: None | TimerUnit = None, callback: bool | TimerCallback = True) -> TimerResult:
+    def current(self, unit: typing.Optional[TimerUnit] = None, callback: typing.Union[bool, TimerCallback] = True) -> TimerResult:
         """
         Saves the currently elapsed time as the result but does not stop the timer.
         * Returns the current result. See `get()` for help of the `unit` argument.
@@ -72,7 +75,7 @@ class Timer:
         self.result = time.time_ns() - self.starttime
         return self._get_and_callback(unit=unit, callback=callback)
 
-    def stop(self, unit: None | TimerUnit = None, callback: bool | TimerCallback = True) -> TimerResult:
+    def stop(self, unit: typing.Optional[TimerUnit] = None, callback: typing.Union[bool, TimerCallback] = True) -> TimerResult:
         """
         Stops the timer.
         * Returns the current result. See `get()` for help of the `unit` argument.
@@ -89,7 +92,7 @@ class Timer:
         self.starttime = None
         return self._get_and_callback(unit=unit, callback=callback)
 
-    def restart(self, clear: bool = True, unit: None | TimerUnit = None, callback: bool | TimerCallback = True) -> TimerResult:
+    def restart(self, clear: bool = True, unit: typing.Optional[TimerUnit] = None, callback: typing.Union[bool, TimerCallback] = True) -> TimerResult:
         """
         Stops the timer and restarts it again.
         * Give `clear=False` to keep the previous result.
@@ -105,7 +108,7 @@ class Timer:
         self.start(clear=clear)
         return ret
 
-    def get(self, unit: None | TimerUnit = None) -> TimerResult:
+    def get(self, unit: typing.Optional[TimerUnit] = None) -> TimerResult:
         """
         Gets the current result in the given unit. Defaults to `self.unit` if no unit is given.
         * Raises `TimerStateError` if no result is available.
@@ -127,7 +130,7 @@ class Timer:
         else:
             raise ValueError(f"Unsupported unit \"{unit}\".")
 
-    def _get_and_callback(self, unit: None | TimerUnit = None, callback: None | bool | TimerCallback = True) -> TimerResult:
+    def _get_and_callback(self, unit: typing.Optional[TimerUnit] = None, callback: typing.Union[None, bool, TimerCallback] = True) -> TimerResult:
         """
         Gets the current result and calls the callback.
         * The unit defaults to `self.unit` if no unit is given.
@@ -159,7 +162,7 @@ class Timer:
         self.stop(callback=callback)
         return False  # don't suppress the exception
 
-    def measure(self, fn: typing.Callable, unit: None | TimerUnit = None, callback: bool | TimerCallback = True) -> typing.Any:
+    def measure(self, fn: typing.Callable, unit: typing.Optional[TimerUnit] = None, callback: typing.Union[bool, TimerCallback] = True) -> typing.Any:
         """
         Times the Callable `fn` using this timer.
         * Returns the result of the Callable `fn`.
@@ -176,7 +179,7 @@ class Timer:
         self.stop(unit=unit, callback=callback)
         return ret
 
-    def wrap(self, fn: None | typing.Callable = None, **kwargs) -> typing.Callable:
+    def wrap(self, fn: typing.Optional[typing.Callable] = None, **kwargs) -> typing.Callable:
         """
         Implements the decorator pattern for the `measure()` method:
         * Decorator:             wrap(fn: Callable, **kwargs) / @wrap
@@ -219,7 +222,7 @@ def measure(fn: typing.Callable, **kwargs) -> typing.Any:
     return timer.measure(fn)
 
 
-def wrap(fn: None | typing.Callable = None, **kwargs) -> typing.Callable:
+def wrap(fn: typing.Optional[typing.Callable] = None, **kwargs) -> typing.Callable:
     """
     Creates a new `Timer`, wraps the Callable `fn` and returns the wrapped callable.
     * Decorator:             wrap(fn: Callable, **kwargs) / @wrap
