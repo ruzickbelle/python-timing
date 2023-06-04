@@ -1,2 +1,2 @@
-# python-timing
+# timing
 A Python timing library providing timer functionality.
