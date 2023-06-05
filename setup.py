@@ -17,10 +17,11 @@ def read(*path_elements: str, **kwargs: str) -> str:
 
 
 setup(
-    name="timing",
+    name="timering",
     version=read("VERSION"),
     description="The only timing library you'll ever need.",
-    long_description="README.md",
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
     author="ruzickbelle",
     url="https://github.com/ruzickbelle/python-timing",
     classifiers=[
