@@ -2,7 +2,7 @@
 
 """
 Yet another timing library. It aims to support every timing pattern:
-* Functional:   start() / stop() / measure(fn: Callable)
+* Functions:    start() / stop() / measure(fn: Callable)
 * Decorators:   wrap(fn: Callable) / @wrap
 * Contexts:     with Timer() as timer: pass
 
@@ -27,7 +27,7 @@ class TimerStateError(Exception):
 class Timer:
     """
     Timer class supporting multiple timing patterns:
-    * Functional:   start() / stop() / measure(fn: Callable)
+    * Functions:    start() / stop() / measure(fn: Callable)
     * Decorators:   wrap(fn: Callable) / @wrap
     * Contexts:     with Timer() as timer: pass
     """
