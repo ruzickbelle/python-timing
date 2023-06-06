@@ -37,11 +37,19 @@ setup(
     license=read("LICENSE"),
     keywords=["timer", "timing"],
     install_requires=[],
-    extras_require={"dev": [
-        "autopep8",
-        "pylint",
-        "pytest",
-    ]},
+    extras_require={
+        "dev": [
+            "autopep8",
+            "pylint",
+            "pytest",
+        ],
+        "build": [
+            "setuptools",
+            "wheel",
+            "build",
+            "twine",
+        ]
+    },
     packages=find_packages("src"),
     package_dir={'': "src"},
     python_requires=">=3.8",
