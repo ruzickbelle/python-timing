@@ -44,6 +44,9 @@ $ python -m pip install timering
 Note that on some systems, the Python 3 executable is called `python3` instead.
 
 
+## [Release Notes](https://github.com/ruzickbelle/python-timing/blob/main/CHANGELOG.md)
+
+
 ## Supported Patterns
 
 ### Start and Stop

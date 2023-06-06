@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "timering"
+description = "The only timing library you'll ever need."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+keywords = ["timer", "timing"]
+authors = [{ name = "ruzickbelle" }]
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = ["autopep8", "pylint", "pytest"]
+build = ["setuptools", "wheel", "build", "twine"]
+
+[project.urls]
+Repository = "https://github.com/ruzickbelle/python-timing"
+Changelog = "https://github.com/ruzickbelle/python-timing/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
