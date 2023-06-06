@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Yet another timing library. It aims to support every timing pattern:
-* Functions:    start() / stop() / measure(fn: Callable)
-* Decorators:   wrap(fn: Callable) / @wrap
-* Contexts:     with Timer() as timer: pass
-
-For repeated performance measurements (microbenchmarks), use the builtin `timeit` library.
+Classes and types for the timing library.
 """
 
 import typing
@@ -15,8 +10,6 @@ import time
 TimerUnit = typing.Literal["seconds", "milliseconds", "microseconds", "nanoseconds"]
 TimerResult = typing.Union[int, float]
 TimerCallback = typing.Callable[[TimerResult], None]
-
-prevtimer = None
 
 
 class TimerStateError(Exception):
@@ -153,9 +146,9 @@ class Timer:
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         """
         Calls `stop()`.
-        If an exception occurred in the context, the callback will not be called, but the timer will be stopped anyway.
+        If an exception was raised in the context, the callback will not be called, but the timer will be stopped anyway.
         """
-        callback = not bool(exc_type)  # don't call the callback if an exception occurred
+        callback = not bool(exc_type)  # don't call the callback if an exception was raised
         self.stop(callback=callback)
         return False  # don't suppress the exception
 
@@ -168,12 +161,18 @@ class Timer:
             * If `callback is True`, `self.callback` will be used.
             * If `callback is False`, no callback will be called.
             * Otherwise the argument is called.
+            * If the Callable `fn` raises an exception, no callback will be stopped, but the timer will be stopped anyway.
         * Raises `TimerStateError` if the timer is already running.
         * Raises `ValueError` if the unit is not supported.
         """
         self.start()
-        ret = fn()
-        self.stop(unit=unit, callback=callback)
+        try:
+            ret = fn()
+        except:
+            self.stop(callback=False)
+            raise
+        else:
+            self.stop(unit=unit, callback=callback)
         return ret
 
     def wrap(self, fn: typing.Optional[typing.Callable] = None, **kwargs) -> typing.Callable:
@@ -192,51 +191,3 @@ class Timer:
                     return self.measure(fn, **kwargs)
                 return timed
             return decorator
-
-
-def start(*args, **kwargs) -> Timer:
-    """
-    Creates a new `Timer`, starts and returns it.
-    * All arguments are passed to the `Timer` constructor.
-    * The created `Timer` may also be found in the module attribute `prevtimer`.
-    """
-    global prevtimer
-    timer = Timer(*args, **kwargs)
-    prevtimer = timer
-    timer.start()
-    return timer
-
-
-def measure(fn: typing.Callable, **kwargs) -> typing.Any:
-    """
-    Creates a new `Timer`, times the Callable `fn` and returns the result.
-    * All keyword arguments are passed to the `Timer` constructor.
-    * The created `Timer` may also be found in the module attribute `prevtimer`.
-    """
-    global prevtimer
-    timer = Timer(**kwargs)
-    prevtimer = timer
-    return timer.measure(fn)
-
-
-def wrap(fn: typing.Optional[typing.Callable] = None, **kwargs) -> typing.Callable:
-    """
-    Creates a new `Timer`, wraps the Callable `fn` and returns the wrapped callable.
-    * Decorator:             wrap(fn: Callable, **kwargs) / @wrap
-    * Decorator Generator:   wrap(**kwargs)(fn: Callable) / @wrap(**kwargs)
-    * All keyword arguments are passed to the `Timer` constructor.
-    * The created `Timer` may also be found in the module attribute `prevtimer`, directly after wrapping.
-    """
-    global prevtimer
-    timer = Timer(**kwargs)
-    prevtimer = timer
-    if fn:
-        def timed():
-            return timer.measure(fn)
-        return timed
-    else:
-        def decorator(fn: typing.Callable):
-            def timed():
-                return timer.measure(fn)
-            return timed
-        return decorator
