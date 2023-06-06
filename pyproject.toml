@@ -28,7 +28,8 @@ dev = ["autopep8", "pylint", "pytest"]
 build = ["setuptools", "wheel", "build", "twine"]
 
 [project.urls]
-Homepage = "https://github.com/ruzickbelle/python-timing"
+Repository = "https://github.com/ruzickbelle/python-timing"
+Changelog = "https://github.com/ruzickbelle/python-timing/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
